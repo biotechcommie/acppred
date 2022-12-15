@@ -3,8 +3,10 @@ from Bio.SeqUtils import ProtParam
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import classification_report
+from acppred.utils import ALLOWED_AMINOACIDS
 import pandas as pd
 import pickle
+
 
 # sao classes que vao construindo e depois criam os metodos 
 
@@ -37,6 +39,8 @@ class Model:
         # A adição de label para positivo ou negativo fica pra depois, provavelmente pra quem chamar essa função a partir do
         # tipo de arquivo de origem
         for peptide in X:
+            # testar se a sequência é composta de aminoacidos permitidos/validos - determinados dentro do utils.py (ALLOWED_AMINOACIDS)
+            peptide = ''.join([aminoacid for aminoacid in peptide.upper() if aminoacid in ALLOWED_AMINOACIDS])
             aa_percent = ProtParam.ProteinAnalysis(peptide).get_amino_acids_percent()
             X_transform.append(aa_percent)
         
