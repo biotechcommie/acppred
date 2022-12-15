@@ -6,64 +6,75 @@ from sklearn.metrics import classification_report
 import pandas as pd
 import pickle
 
-# sao classes que vao construindo e depois crean os metodos 
+# sao classes que vao construindo e depois criam os metodos 
 
 class Model:
     def __init__(self, estimator, positive_peptides, negative_peptides):
         """
-        this class defines an estimator for peptide predition 
+        This class defines and train an estimator for anticancer peptides prediction
+
         Args:
-         - estimator: a scikit-learn estimatos
-         - positive_peptides: a file containing anticances petides
-         -negative_peptides: a files containig nom-anticancer peptides
+            - estimator: a scikit_learn estimator
+            - positive_peptides: a file containing anticancer peptides
+            - negative_peptides: a file containing non-anticancer peptides
         """
         self.estimator = estimator
         self.positive_peptides = positive_peptides
         self.negative_peptides = negative_peptides
+
     def transform(self, X):
         """
-        Tranform a set of protin sequewnces into aminiaci percents
+        Transform a set of protein sequences into aminoacids percents
+
         Args:
-        -X< a list of protein sequences
+            - X: list of protein sequences
         """
+        # no notebook jupyter essa variável X_transform é a peptide_data = []
         X_transform = []
 
+        # essa função vai receber qualquer sequencia de proteinas, seja positiva ou negativa, e fazer a transformação do protparam 
+        # Diferente da função do notebook que recebia e analisava separada, esta é uma função generalista.
+        # A adição de label para positivo ou negativo fica pra depois, provavelmente pra quem chamar essa função a partir do
+        # tipo de arquivo de origem
         for peptide in X:
             aa_percent = ProtParam.ProteinAnalysis(peptide).get_amino_acids_percent()
             X_transform.append(aa_percent)
-
+        
         return pd.DataFrame(X_transform)
 
-    def train (self):
+    def train(self):
         """
-        train na predictice model form anticancer peptide
+        Trains a predictive model for anticancer peptides
         """
-        X=[]
-        y=[]
-        
+        X = []
+        y = []
+
         with open(self.positive_peptides) as reader:
             for peptide in reader:
                 X.append(peptide)
                 y.append(1)
+        
         with open(self.negative_peptides) as reader:
             for peptide in reader:
-               X.append(peptide)
-               y.append(0)
-
+                X.append(peptide)
+                y.append(0)
+            
         X_transform = self.transform(X)
 
         X_train, X_test, y_train, y_test = train_test_split(X_transform, y)
+
         self.estimator.fit(X_train, y_train)
-        y_pred = self.estimator.predict(X_test)
+        y_pred = self.estimator.predict(X_test) # .predict é uma função dentro de RandomForestClassifier(), que é alocado na variavel 'estimator' do objeto
         report = classification_report(y_test, y_pred)
 
         return report 
 
     def predict(self, sequence):
         """
-        predict rhe anticance aactivity for a given peptide
+        Predicts the anticance activity for a given peptide
+        
         Args:
-        - seqence: a peptide sequence to be analysed
+            - sequence: a peptide sequence to be analyzed
         """
         X_transform = self.transform([sequence])
         return self.estimator.predict_proba(X_transform)[0][1]
@@ -71,6 +82,7 @@ class Model:
     def save(self, filename):
         """
         Saves the model to a file
+
         Args:
             -filename  
         """
@@ -78,20 +90,12 @@ class Model:
             writer.write(pickle.dumps(self))
     
     @staticmethod
-    
     def load(filename):
       """
       Loads a trained model objects
+      
       Args:
-      - filename: path to the train model file
+        - filename: path to the train model file
       """
       with open(filename,'rb') as reader:
         return pickle.loads(reader.read())
-
-
-
-
-
-
-
-# Sao objetos de analise que vao considerando para o analise 
