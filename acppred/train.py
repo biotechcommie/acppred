@@ -13,6 +13,8 @@ def main():
     model.train()
     model.save('data/models/model.pickle')
 
-# verificar quantidade de _______ neste trecho, com o doc do fred
+# verificar quantidade de _______ neste trecho, com o doc do fred (são 2 __)
+# TRAIN É O PRIMEIRO PARA TREINAR O MODELO, DEPOIS PREDICT PRA USAR O MODELO TREINADO.
+
 if __name__ == '__main__':
     main()
